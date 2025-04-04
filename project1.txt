@@ -1,0 +1,48 @@
+import os
+print(os.path.exists("/content/dataset.zip"))
+
+
+
+import zipfile
+import os
+
+zip_path = "/content/dataset.zip"
+extract_path = "/content/extracted"
+
+if not os.path.exists(extract_path):
+    os.makedirs(extract_path)  # Ensure the directory exists
+
+with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+    zip_ref.extractall(extract_path)
+
+print("Files extracted to:", extract_path)
+
+
+!pip install torch torchvision torchaudio
+!pip install ultralytics
+
+!git clone https://github.com/ultralytics/yolov5.git
+%cd yolov5
+!pip install -r requirements.txt
+!pip uninstall -y wandb
+!pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+!echo -e "train: /content/extracted/train/images\nval: /content/extracted/valid/images\ntest: /content/extracted/test/images\n\nnc: 7\nnames: ['clean', 'partially_blocked', 'blocked', 'overflowing', 'dry', 'wet', 'unknown']" > /content/extracted/data.yaml
+!pip install -U albumentations
+import torch
+print(torch.__version__)  # Check PyTorch version
+print(torch.cuda.is_available())  # Should return True if GPU is available
+print(torch.version.cuda)  # Check CUDA version used by PyTorch
+!pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+from google.colab import drive
+drive.mount('/content/drive')
+!echo -e "train: /content/extracted/train/images\nval: /content/extracted/valid/images\ntest: /content/extracted/test/images\n\nnc: 7\nnames: ['clean', 'partially_blocked', 'blocked', 'overflowing', 'dry', 'wet', 'unknown']" > /content/extracted/data.yaml
+
+
+!python train.py --weights yolov5s.pt --data /content/extracted/data.yaml --epochs 50 --batch-size 16 --device 0 --project "/content/drive/MyDrive/YOLOv5_training" --name "my_model"
+
+!python detect.py --weights /content/best.pt \
+--img 640 --conf 0.1 --source /content/img.jpg
+
+
